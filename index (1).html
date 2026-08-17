@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HACKER AI PRO — Drone Simulator</title>
+<style>
+:root{
+  --bg:#020702;--panel:#061006;--panel2:#091509;--line:#173c12;
+  --green:#57ff22;--green2:#27d30d;--muted:#7e9a78;--red:#ff3030;--yellow:#d8ff45;
+  --shadow:0 0 22px rgba(63,255,30,.08)
+}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 70% 0,#0a1908 0,#020702 38%,#010401 100%);
+color:#d6e8d1;font:13px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;overflow-x:hidden}
+button,input,select{font:inherit} button{cursor:pointer}
+.app{min-height:100vh}.top{height:64px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 18px;gap:22px;background:#030803;position:sticky;top:0;z-index:10}
+.brand{display:flex;align-items:center;gap:12px;min-width:245px}.brand .orb{width:36px;height:36px;border:2px solid var(--green);border-radius:50%;box-shadow:0 0 16px rgba(87,255,34,.35);position:relative}
+.orb:after{content:"";position:absolute;inset:7px;border:1px solid var(--green);border-radius:50%}
+.brand b{font-size:17px;color:var(--green);letter-spacing:1px}.brand small{display:block;color:#91a98b;font-size:10px;letter-spacing:1px}
+.statusbar{display:flex;gap:12px;flex:1}.stat{border-left:1px solid var(--line);padding-left:16px;min-width:145px}.stat label{display:block;color:var(--green);font-size:10px}.stat span{color:#c7d9c2;font-size:11px}
+.clock{color:var(--green);font-size:12px;white-space:nowrap}.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 64px)}
+.side{border-right:1px solid var(--line);padding:14px 10px;background:#020702}.side h4{color:var(--green);margin:4px 10px 10px;font-size:11px}
+.nav{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;color:#9caf98;padding:10px 12px;text-align:left;border-left:2px solid transparent}.nav:hover,.nav.active{background:#0b2208;color:var(--green);border-left-color:var(--green)}
+.badge{margin-left:auto;border:1px solid var(--green2);color:var(--green);padding:1px 5px;font-size:9px}.sidefoot{position:fixed;bottom:12px;width:198px;border-top:1px solid var(--line);padding:12px;color:#78a26f;font-size:10px}
+.main{padding:14px;display:grid;gap:10px;grid-template-columns:1.25fr .95fr;align-content:start}.panel{border:1px solid var(--line);background:linear-gradient(180deg,#061006,#030803);box-shadow:var(--shadow);min-width:0}.panel h3{margin:0;padding:10px 13px;border-bottom:1px solid var(--line);color:var(--green);font-size:11px;letter-spacing:.5px;display:flex;justify-content:space-between}.body{padding:12px}
+.hero{grid-column:1/2}.camera{grid-column:2/3}.map{grid-column:1/2}.autopilot{grid-column:2/3}.lower{grid-column:1/3;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.tools{grid-column:1/3}
+.dronebox{display:grid;grid-template-columns:1fr 1fr;gap:12px}.drone-art{height:250px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:radial-gradient(circle,#183016 0,#081108 45%,#020502 75%)}
+.drone-art .quad{width:210px;height:115px;position:relative;filter:drop-shadow(0 0 8px #4cff24)}.bodydrone{position:absolute;left:55px;top:27px;width:100px;height:58px;background:linear-gradient(135deg,#394039,#121712);border:1px solid #6b7668;border-radius:30% 30% 40% 40%}.arm{position:absolute;width:100px;height:10px;background:#303830;border:1px solid #687066}.a1{left:0;top:24px;transform:rotate(12deg)}.a2{right:0;top:24px;transform:rotate(-12deg)}.a3{left:0;bottom:24px;transform:rotate(-12deg)}.a4{right:0;bottom:24px;transform:rotate(12deg)}.prop{position:absolute;width:58px;height:8px;border:1px solid #687066;border-radius:50%;background:rgba(150,160,150,.08)}.p1{left:-7px;top:8px}.p2{right:-7px;top:8px}.p3{left:-7px;bottom:8px}.p4{right:-7px;bottom:8px}.lens{position:absolute;left:83px;bottom:0;width:35px;height:30px;background:#0b120b;border:1px solid #71806e;border-radius:8px}.lens:after{content:"";position:absolute;width:12px;height:12px;left:10px;top:8px;border:2px solid var(--green);border-radius:50%}
+.metrics{display:grid;grid-template-columns:1fr 1fr}.metric{padding:12px;border:1px solid var(--line);min-height:70px}.metric label{color:var(--green);font-size:9px;display:block}.metric strong{font-size:17px;color:#dcebd8}.bar{height:4px;background:#173215;margin-top:7px}.bar i{display:block;height:100%;background:var(--green);width:87%}.kv{display:grid;grid-template-columns:110px 1fr;gap:5px;margin-top:12px;color:#8ba585}.kv b{color:#d9e7d5}
+.actions{display:flex;gap:8px;margin-top:12px}.btn{border:1px solid #245c1a;background:#071407;color:var(--green);padding:8px 12px}.btn:hover{background:#10300c}.danger{border-color:#7b1717;color:#ff5a5a}.camera-view{height:300px;position:relative;overflow:hidden;background:#020403;border:1px solid var(--line)}
+.city{position:absolute;inset:0;background:linear-gradient(#07120c,#020503);overflow:hidden}.city:before{content:"";position:absolute;inset:30% 0 0;background:repeating-linear-gradient(90deg,transparent 0 24px,#172619 25px 31px),repeating-linear-gradient(0deg,transparent 0 30px,#122014 31px 37px);transform:perspective(500px) rotateX(55deg) scale(1.7);transform-origin:bottom}
+.light{position:absolute;width:3px;height:3px;background:#e8ff91;box-shadow:0 0 8px #e8ff91}.l1{left:12%;top:62%}.l2{left:22%;top:72%}.l3{left:39%;top:60%}.l4{left:55%;top:77%}.l5{left:72%;top:63%}.l6{left:88%;top:52%}.l7{left:67%;top:43%}.l8{left:31%;top:42%}
+.rec{position:absolute;top:10px;right:10px;color:#ff4444}.camcontrols{display:flex;gap:6px;margin-top:8px}.camcontrols button{flex:1}
+.mapbox{height:300px;position:relative;overflow:hidden;background:#071006;border:1px solid var(--line)}.mapgrid{position:absolute;inset:0;background:linear-gradient(35deg,transparent 48%,#193619 49% 50%,transparent 51%),linear-gradient(140deg,transparent 48%,#163015 49% 50%,transparent 51%),repeating-linear-gradient(90deg,#081308 0 58px,#0d1d0c 59px 60px),repeating-linear-gradient(0deg,transparent 0 58px,#102310 59px 60px);background-size:auto,auto,auto,auto}
+.route{position:absolute;inset:0}.route svg{width:100%;height:100%}.node{position:absolute;border:1px solid var(--green);background:#061006;color:var(--green);width:23px;height:23px;border-radius:50%;display:grid;place-items:center;font-size:10px}.n1{left:12%;top:25%}.n2{left:38%;top:55%}.n3{left:62%;top:27%}.n4{left:82%;top:66%}.home{left:9%;top:20%;border-radius:4px}
+.mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.mode{padding:12px 6px;border:1px solid var(--line);background:#061006;text-align:center;color:#9bb494}.mode.on{border-color:var(--green2);color:var(--green);box-shadow:inset 0 0 12px rgba(87,255,34,.05)}.mission{margin-top:10px;border:1px solid var(--line)}.mission div{padding:7px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;font-size:10px}.mission div:last-child{border:0}
+.chat{height:220px;overflow:auto}.msg{max-width:85%;padding:8px;margin:7px 0;border:1px solid var(--line)}.msg.ai{color:#bfe4b8}.msg.user{margin-left:auto;color:var(--green);background:#071407}.chatrow{display:flex;gap:6px}.chatrow input{flex:1;background:#020602;border:1px solid var(--line);color:#dcebd8;padding:9px}.chart{height:170px;position:relative;background:repeating-linear-gradient(0deg,#071007 0 33px,#0b190a 34px),repeating-linear-gradient(90deg,transparent 0 65px,#122512 66px)}.chart svg{width:100%;height:100%}.health li{list-style:none;padding:6px 0;border-bottom:1px solid #10240e;display:flex;justify-content:space-between}.ok{color:var(--green)}
+.toolsrow{display:flex;flex-wrap:wrap;gap:7px}.tool{border:1px solid var(--line);padding:9px 12px;color:#9cb598;background:#061006}.tool:hover{color:var(--green);border-color:#2c711d}
+.overlay{position:fixed;inset:0;background:rgba(0,4,0,.92);display:grid;place-items:center;z-index:50}.login{width:min(420px,92vw);border:1px solid var(--green2);background:#030903;padding:24px;box-shadow:0 0 50px rgba(87,255,34,.12)}.login h1{color:var(--green);font-size:20px}.login input{width:100%;margin:7px 0;padding:12px;background:#020502;border:1px solid var(--line);color:white}.login small{color:#759070}.hidden{display:none!important}
+.toast{position:fixed;right:18px;bottom:18px;border:1px solid var(--green);background:#061006;color:var(--green);padding:10px 14px;z-index:80}
+@media(max-width:1100px){.statusbar{display:none}.main{grid-template-columns:1fr}.hero,.camera,.map,.autopilot,.lower,.tools{grid-column:1}.lower{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.side{display:none}.main{padding:8px}.dronebox{grid-template-columns:1fr}.lower{grid-template-columns:1fr}.brand{min-width:auto}.clock{display:none}}
+</style>
+</head>
+<body>
+<div id="login" class="overlay">
+  <form class="login" id="loginForm">
+    <h1>HACKER AI PRO</h1>
+    <p>Drone Operations & Simulation Console</p>
+    <input id="user" placeholder="Username" value="operator">
+    <input id="pass" placeholder="Password" type="password" value="demo">
+    <button class="btn" style="width:100%;margin-top:8px">ENTER CONSOLE</button>
+    <small>Demo login • simulator-only build • no real flight commands</small>
+  </form>
+</div>
+
+<div class="app">
+<header class="top">
+  <div class="brand"><div class="orb"></div><div><b>HACKER AI PRO</b><small>ULTIMATE CONTROL SUITE</small></div></div>
+  <div class="statusbar">
+    <div class="stat"><label>◉ SYSTEM ONLINE</label><span>All Systems Operational</span></div>
+    <div class="stat"><label>⌁ AI CORE</label><span>GPT-4 TURBO (UI DEMO)</span></div>
+    <div class="stat"><label>♙ USER</label><span id="who">operator</span></div>
+    <div class="stat"><label>◈ ACCESS LEVEL</label><span>SIMULATOR</span></div>
+  </div>
+  <div class="clock" id="clock">00:00:00</div>
+</header>
+
+<div class="layout">
+<aside class="side">
+  <h4>MAIN MENU</h4>
+  <button class="nav active" data-section="dashboard">⌂ DASHBOARD</button>
+  <button class="nav" data-section="assistant">◌ AI ASSISTANT</button>
+  <button class="nav" data-section="drone">⌁ DRONE CONNECT <span class="badge">SIM</span></button>
+  <button class="nav" data-section="camera">▣ CAMERA FEED</button>
+  <button class="nav" data-section="flight">↗ FLIGHT PLAN</button>
+  <button class="nav" data-section="waypoints">⌖ WAYPOINTS</button>
+  <button class="nav" data-section="autopilot">✣ AUTO PILOT (AI)</button>
+  <button class="nav" data-section="map">◎ MAP & LOCATION</button>
+  <button class="nav" data-section="adapter">⌘ UNIVERSAL ADAPTER</button>
+  <button class="nav" data-section="controller">⚙ FLIGHT CONTROLLER</button>
+  <button class="nav" data-section="simulator">▣ COMPLETE SIMULATOR</button>
+  <button class="nav" data-section="logs">≋ LOGS</button>
+  <div class="sidefoot">CONNECTION STATUS<br><br>Internet <span class="ok">Connected</span><br>Server <span class="ok">Online</span><br>Drone Link <span class="ok">Simulator</span><br><br>VERSION 1.0 • SAFE MODE</div>
+</aside>
+
+<main class="main" id="dashboard">
+<section class="panel hero" id="drone">
+<h3>DRONE CONTROL CENTER <span class="ok">STATUS: CONNECTED (SIM)</span></h3>
+<div class="body dronebox">
+  <div>
+    <div class="drone-art"><div class="quad"><i class="arm a1"></i><i class="arm a2"></i><i class="arm a3"></i><i class="arm a4"></i><i class="prop p1"></i><i class="prop p2"></i><i class="prop p3"></i><i class="prop p4"></i><i class="bodydrone"></i><i class="lens"></i></div></div>
+    <div class="kv"><span>DRONE MODEL</span><b>Virtual MAVIC 3 Pro</b><span>PROFILE</span><b>SIM-01</b><span>LINK</span><b>Simulation Bus</b></div>
+    <div class="actions"><button class="btn danger" id="disconnect">DISCONNECT</button><button class="btn" id="calibrate">CALIBRATE</button><button class="btn" id="settings">DRONE SETTINGS</button></div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><label>🔋 BATTERY</label><strong id="battery">87%</strong><div class="bar"><i id="batterybar"></i></div></div>
+    <div class="metric"><label>⌁ SIGNAL</label><strong id="signal">STRONG</strong></div>
+    <div class="metric"><label>📍 ALTITUDE</label><strong id="alt">120.5 m</strong></div>
+    <div class="metric"><label>➤ SPEED</label><strong id="speed">18.6 m/s</strong></div>
+    <div class="metric"><label>GPS</label><strong>12 SAT</strong></div>
+    <div class="metric"><label>HOME POINT</label><strong>SET</strong></div>
+    <div class="metric"><label>FLIGHT MODE</label><strong>GPS SIM</strong></div>
+    <div class="metric"><label>RSSI</label><strong>-45 dBm</strong></div>
+  </div>
+</div>
+</section>
+
+<section class="panel camera" id="camera"><h3>LIVE CAMERA FEED (SIMULATED) <span class="ok">● REC</span></h3><div class="body"><div class="camera-view"><div class="city"></div><span class="light l1"></span><span class="light l2"></span><span class="light l3"></span><span class="light l4"></span><span class="light l5"></span><span class="light l6"></span><span class="light l7"></span><span class="light l8"></span><div class="rec">● REC 00:12:45</div></div><div class="camcontrols"><button class="btn" data-toast="Camera snapshot simulated">PHOTO</button><button class="btn" data-toast="Recording state toggled">VIDEO</button><button class="btn" data-toast="Camera settings opened">SETTINGS</button></div></div></section>
+
+<section class="panel map" id="map"><h3>LIVE MAP & DRONE POSITION <span class="ok">MAP: SIMULATION</span></h3><div class="body"><div class="mapbox"><div class="mapgrid"></div><div class="route"><svg viewBox="0 0 600 300" preserveAspectRatio="none"><polyline points="70,75 160,180 260,160 365,82 490,200" fill="none" stroke="#57ff22" stroke-width="3"/></svg></div><div class="node home">H</div><div class="node n1">1</div><div class="node n2">2</div><div class="node n3">3</div><div class="node n4">4</div></div><div class="metrics" style="margin-top:8px"><div class="metric"><label>LATITUDE</label><strong>19.0760</strong></div><div class="metric"><label>LONGITUDE</label><strong>72.8777</strong></div><div class="metric"><label>ALTITUDE</label><strong id="alt2">120.5 m</strong></div><div class="metric"><label>HEADING</label><strong>135° SE</strong></div></div></div></section>
+
+<section class="panel autopilot" id="autopilot"><h3>AI AUTOPILOT CONTROL <span class="ok">ENABLED • SIM ONLY</span></h3><div class="body"><div class="mini-grid"><button class="mode on" data-toast="Smart Follow simulated">SMART<br>FOLLOW</button><button class="mode" data-toast="Point of interest selected">POINT OF<br>INTEREST</button><button class="mode" data-toast="Object tracking simulated">TRACK<br>OBJECT</button><button class="mode" data-toast="Waypoint mission selected">WAYPOINT<br>MISSION</button><button class="mode" data-toast="Circle mode simulated">CIRCLE<br>MODE</button><button class="mode" data-toast="Survey simulation selected">AUTO<br>SURVEY</button></div><div class="mission"><div><span>1 • Waypoint 1</span><span>ALT: 80m</span></div><div><span>2 • Waypoint 2</span><span>ALT: 100m</span></div><div><span>3 • Waypoint 3</span><span>ALT: 120m</span></div><div><span>4 • Waypoint 4</span><span>ALT: 100m</span></div></div><div class="actions"><button class="btn" data-toast="Waypoint added to simulation">ADD WAYPOINT</button><button class="btn" data-toast="Mission editor opened">EDIT MISSION</button><button class="btn danger" data-toast="Mission cleared">CLEAR ALL</button><button class="btn" style="flex:1" data-toast="Mission started in simulator">START SIMULATION</button></div></div></section>
+
+<div class="lower">
+<section class="panel" id="assistant"><h3>AI DRONE ASSISTANT</h3><div class="body"><div class="chat" id="chat"><div class="msg ai">AI Assistant online. I can explain telemetry, simulate routes, validate waypoint plans, and inspect adapter compatibility.</div><div class="msg user">Take off and go to 100 meter altitude</div><div class="msg ai">Simulation request received. Pre-flight checks OK. Virtual altitude target set to 100m.</div></div><div class="chatrow"><input id="chatInput" placeholder="Type a simulation command..."><button class="btn" id="send">➤</button></div></div></section>
+
+<section class="panel" id="flight"><h3>FLIGHT DATA LOG</h3><div class="body"><div class="chart"><svg viewBox="0 0 600 170" preserveAspectRatio="none"><polyline points="0,130 60,115 110,120 160,95 210,105 260,80 310,90 360,60 410,75 460,55 520,62 600,35" fill="none" stroke="#57ff22" stroke-width="2"/><polyline points="0,150 60,145 110,130 160,135 210,120 260,118 310,108 360,110 410,95 460,100 520,78 600,72" fill="none" stroke="#a2ff52" stroke-width="1"/></svg></div><small>Altitude • Speed • Battery • GPS • Timestamp</small></div></section>
+
+<section class="panel" id="logs"><h3>DRONE HEALTH</h3><div class="body"><ul class="health"><li>Motors <span class="ok">Normal</span></li><li>ESC <span class="ok">Normal</span></li><li>Compass <span class="ok">Normal</span></li><li>IMU <span class="ok">Normal</span></li><li>GPS <span class="ok">Normal</span></li><li>Battery Cell <span class="ok">Good</span></li></ul><button class="btn" data-toast="Full diagnostic simulated">FULL DIAGNOSTIC</button></div></section>
+</div>
+
+<section class="panel tools" id="adapter"><h3>UNIVERSAL ADAPTER SYSTEM <span>SAFE INTEGRATION LAYER</span></h3><div class="body"><div class="toolsrow"><button class="tool" data-toast="MAVLink adapter: simulation ready">MAVLink • SIM</button><button class="tool" data-toast="DJI adapter: interface stub ready">DJI • OFFICIAL SDK SLOT</button><button class="tool" data-toast="PX4 adapter: simulation ready">PX4 • SIM</button><button class="tool" data-toast="ArduPilot adapter: simulation ready">ArduPilot • SIM</button><button class="tool" data-toast="Custom adapter template opened">CUSTOM PROTOCOL TEMPLATE</button></div><p style="color:#799273">Adapters expose read-only telemetry and simulator actions here. Real hardware control requires your controller vendor's official, supported SDK/protocol and a separately implemented safety layer.</p></div></section>
+
+<section class="panel tools" id="controller"><h3>FLIGHT-CONTROLLER ADAPTER STRUCTURE</h3><div class="body"><div class="kv"><span>INTERFACE</span><b>AdapterRegistry</b><span>TELEMETRY</span><b>TelemetryProvider</b><span>COMMANDS</span><b>SimulatorCommandBus</b><span>SAFETY</span><b>ManualOverrideGuard</b><span>PROTOCOL</span><b>Official / Supported Only</b></div></div></section>
+
+<section class="panel tools" id="simulator"><h3>COMPLETE DRONE SIMULATOR</h3><div class="body"><div class="mini-grid"><button class="mode" data-toast="Scenario: Takeoff">TAKEOFF</button><button class="mode" data-toast="Scenario: Hover">HOVER</button><button class="mode" data-toast="Scenario: Return Home">RETURN HOME</button><button class="mode" data-toast="Scenario: Landing">LAND</button><button class="mode" data-toast="Scenario: Wind 5m/s">WIND TEST</button><button class="mode" data-toast="Scenario: GPS loss">GPS LOSS TEST</button></div><div class="actions"><button class="btn danger" id="emergency">🛑 EMERGENCY SIM STOP</button><button class="btn" data-toast="Manual override simulation enabled">MANUAL OVERRIDE</button></div></div></section>
+</main>
+</div>
+</div>
+<div id="toast" class="toast hidden"></div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+function toast(t){const el=$("#toast");el.textContent=t;el.classList.remove("hidden");clearTimeout(window._t);window._t=setTimeout(()=>el.classList.add("hidden"),2200)}
+$("#loginForm").addEventListener("submit",e=>{e.preventDefault();$("#login").classList.add("hidden");$("#who").textContent=$("#user").value||"operator";toast("Console unlocked • simulator mode")});
+function tick(){const d=new Date();$("#clock").textContent=d.toLocaleTimeString("en-GB",{hour12:false})} setInterval(tick,1000);tick();
+$$(".nav").forEach(n=>n.onclick=()=>{ $$(".nav").forEach(x=>x.classList.remove("active"));n.classList.add("active"); const id=n.dataset.section; document.getElementById(id)?.scrollIntoView({behavior:"smooth",block:"start"});});
+$$("[data-toast]").forEach(b=>b.onclick=()=>toast(b.dataset.toast));
+$("#send").onclick=sendChat; $("#chatInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendChat()});
+function sendChat(){const i=$("#chatInput"),v=i.value.trim();if(!v)return;const c=$("#chat");c.insertAdjacentHTML("beforeend",`<div class="msg user"></div>`);c.lastElementChild.textContent=v;setTimeout(()=>{let r="Simulation accepted. No real hardware command was sent.";if(/altitude|height/i.test(v))r="Altitude target validated in simulation. Telemetry will update without controlling a physical aircraft.";if(/waypoint|route|map/i.test(v))r="Route syntax looks valid. Use the map to edit simulated waypoints.";if(/adapter|protocol|controller/i.test(v))r="Use an official/supported controller SDK or protocol adapter. This demo exposes only a safe integration slot.";c.insertAdjacentHTML("beforeend",`<div class="msg ai"></div>`);c.lastElementChild.textContent=r;c.scrollTop=c.scrollHeight},350);i.value=""}
+$("#disconnect").onclick=()=>toast("Virtual drone disconnected");
+$("#calibrate").onclick=()=>toast("Virtual IMU/compass calibration complete");
+$("#emergency").onclick=()=>toast("SIMULATION STOPPED • manual override guard active");
+let alt=120.5,bat=87;setInterval(()=>{alt += (Math.random()-.5)*1.4; bat=Math.max(1,bat-.015);$("#alt").textContent=alt.toFixed(1)+" m";$("#alt2").textContent=alt.toFixed(1)+" m";$("#battery").textContent=Math.round(bat)+"%";$("#batterybar").style.width=Math.round(bat)+"%"},1200);
+</script>
+</body>
+</html>
